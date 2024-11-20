@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell", inline: <<-SCRIPT
     timedatectl set-timezone Europe/Madrid
-    ip route replace default via 192.168.1.1 dev eth1 i
+    ip route replace default via 192.168.1.1 dev eth1
   SCRIPT
 
   config.vm.define "web_non_production" do |web1|

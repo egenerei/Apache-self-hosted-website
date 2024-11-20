@@ -2,11 +2,5 @@
 - name: Configure web server
   hosts: webservers
   become: true
-  vars:
-    admin_passwd: /etc/apache2/admin/.htpasswd
-    sysadmin_passwd: /etc/apache2/sysadmin/.htpasswd
-    conf_file: /etc/apache2/apache2.conf
-    user: vagrant
-    scripts: /home/{{user}}/scripts
-    certs: /etc/letsencrypt/live/egenerei.es
 - import_playbook: playbooks/packages.yml
+- import_playbook: playbooks/website.yml

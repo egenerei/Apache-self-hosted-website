@@ -1,0 +1,7 @@
+admin_passwd: /etc/apache2/admin/.htpasswd
+sysadmin_passwd: /etc/apache2/sysadmin/.htpasswd
+conf_file: /etc/apache2/apache2.conf
+user: vagrant
+scripts: /home/{{user}}/scripts
+domain: egenerei.es
+certs: /etc/letsencrypt/live/{{ domain }}

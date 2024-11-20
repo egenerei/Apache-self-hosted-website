@@ -1,0 +1,87 @@
+---
+- name: Website configuration
+  hosts: all
+  become: true
+  vars_files: vars.yml
+  tasks:
+
+    - name: Create directory for cert/key
+      file: 
+        path: "{{ certs }}"
+        state: directory
+        mode: '0755'
+
+    - name: Check if cert/key/chain files already exist
+      stat:
+        path: "{{ certs }}/fullchain.pem"
+      register: fullchain_stat
+
+    - name: Check if cert/key/chain files already exist
+      stat:
+        path: "{{ certs }}/privkey.pem"
+      register: privkey_stat
+
+    - name: Check if cert/key/chain files already exist
+      stat:
+        path: "{{ certs }}/chain.pem"
+      register: chain_stat
+
+    - name: Copy cert/key/chain files to server
+      copy:
+        src: ../certs/
+        dest: "{{ certs }}/"
+        owner: www-data
+        group: www-data
+        mode: '0755'
+        recurse: yes
+      when: 
+        - not fullchain_stat.stat.exists
+        - not privkey_stat.stat.exists
+        - not chain_stat.stat.exists
+
+    - name: Stablish permissions for private key
+      file:
+        path: "{{ certs }}/privkey.pem"
+        owner: www-data
+        group: www-data
+        mode: '0600'
+
+    - name: Stablish permissions for certificate
+      file:
+        path: "{{ certs }}/cert.pem"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Stablish permissions for chain
+      file:
+        path: "{{ certs }}/chain.pem"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Create directory for admin credentials
+      file: 
+        path: /etc/apache2/admin 
+        state: directory
+        mode: '0755'
+
+    - name: Create directory for sysadmin credentials
+      file: 
+        path: /etc/apache2/sysadmin 
+        state: directory
+        mode: '0755'
+
+    - name: Create admin .htpasswd file
+      ansible.builtin.command:
+        cmd: htpasswd -cb /etc/apache2/admin/.htpasswd admin asir
+
+    - name: Create sysadmin .htpasswd file
+      ansible.builtin.command:
+        cmd: htpasswd -cb /etc/apache2/sysadmin/.htpasswd sysadmin risa
+
+  handlers:
+    - name: Restart apache2
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
