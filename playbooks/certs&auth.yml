@@ -1,5 +1,5 @@
 ---
-- name: Website configuration
+- name: Certificates and authorization for users creation
   hosts: all
   become: true
   vars_files: vars.yml
@@ -34,6 +34,7 @@
         group: www-data
         mode: '0644'
       when: not cert_stat.stat.exists
+      notify: Restart apache2
 
     - name: Copy privkey.pem to server
       ansible.builtin.copy:
@@ -43,6 +44,7 @@
         group: www-data
         mode: '0600'
       when: not privkey_stat.stat.exists
+      notify: Restart apache2
 
     - name: Copy chain.pem to server
       ansible.builtin.copy:
@@ -52,6 +54,7 @@
         group: www-data
         mode: '0644'
       when: not chain_stat.stat.exists
+      notify: Restart apache2
 
     - name: Stablish permissions for private key
       file:
@@ -96,15 +99,33 @@
         path: "{{ sysadmin_passwd }}"
       register: sysadmin_stat
 
-    - name: Create admin .htpasswd file
+    - name: Create admin .htpasswd file if it doesn't exist
       ansible.builtin.command:
         cmd: htpasswd -cb /etc/apache2/admin/.htpasswd admin asir
       when: not admin_stat.stat.exists
+      notify: Restart apache2
 
-    - name: Create sysadmin .htpasswd file
+    - name: Create sysadmin .htpasswd file if it doesn't exist
       ansible.builtin.command:
         cmd: htpasswd -cb /etc/apache2/sysadmin/.htpasswd sysadmin risa
       when: not sysadmin_stat.stat.exists
+      notify: Restart apache2
+
+    - name: Change admin .htpasswd file ownership, group and permissions
+      ansible.builtin.file:
+        path: "{{admin_passwd}}"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+      notify: Restart apache2
+
+    - name: Change sysadmin .htpasswd file ownership, group and permissions
+      ansible.builtin.file:
+        path: "{{sysadmin_passwd}}"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+      notify: Restart apache2
 
   handlers:
     - name: Restart apache2
