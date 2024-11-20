@@ -1,0 +1,101 @@
+---
+- name: Website configuration
+  hosts: all
+  become: true
+  vars_files: vars.yml
+  tasks:
+    
+    - name: Check if 000-default.conf site is enabled
+      stat:
+        path: "{{ website_enabled_conf }}/000-default.conf"
+      register: default_stat
+
+    - name: Check if default-ssl.conf site is enabled
+      stat:
+        path: "{{ website_enabled_conf }}/default-ssl.conf"
+      register: ssl_stat
+
+    - name: Check if MY WEBSITE FILE {{ website_file }} site is enabled
+      stat:
+        path: "{{ website_enabled_conf }}/{{ website_file }}"
+      register: my_website_stat
+
+    - name: Disable the 000-default.conf site configuration
+      command:
+        cmd: a2dissite 000-default.conf 
+      when: default_stat.stat.exists
+      notify: Restart apache2
+
+    - name: Disable the default-ssl.conf site configuration
+      command:
+        cmd: a2dissite default-ssl.conf 
+      when: ssl_stat.stat.exists
+      notify: Restart apache2
+
+    - name: Disable the MY WEBSITE FILE {{ website_file }} site configuration
+      command:
+        cmd: a2dissite {{ website_file }} 
+      when: my_website_stat.stat.exists
+      notify: Restart apache2
+
+    - name: Copy website files to website root directory
+      copy:
+        src: ../website/
+        dest: /var/www/html/
+        owner: www-data
+        group: www-data
+        mode: '0755'
+      notify: Restart apache2
+
+    - name: Copy my new configuration file {{ website_file }} to the server
+      template: 
+        src: ../website_conf/root.conf
+        dest: "{{ website_available_conf }}/"
+      notify: Restart apache2
+      
+    - name: Enable my new configuration file {{ website_file }}
+      command:
+        cmd: a2ensite {{ website_file }}
+      notify:
+        - Restart apache2
+      
+    - name: Enable headers module in Apache2
+      command: a2enmod headers
+      notify: Restart apache2
+      changed_when: false
+
+    - name: Enable mime module in Apache2
+      command: a2enmod mime
+      notify: Restart apache2
+      changed_when: false
+
+    - name: Enable status module in Apache2
+      command: a2enmod status
+      notify: Restart apache2
+      changed_when: false
+
+    - name: Enable proxy module in Apache2
+      command: a2enmod proxy
+      notify: Restart apache2
+      changed_when: false
+
+    - name: Enable proxy_http module in Apache2
+      command: a2enmod proxy_http
+      notify: Restart apache2
+      changed_when: false
+
+    - name: Enable ssl module in Apache2
+      command: a2enmod ssl
+      notify: Restart apache2
+      changed_when: false
+
+    - name: Enable rewrite module in Apache2
+      command: a2enmod rewrite
+      notify: Restart apache2
+      changed_when: false
+
+  handlers:
+    - name: Restart apache2
+      ansible.builtin.service:
+        name: apache2
+        state: restarted

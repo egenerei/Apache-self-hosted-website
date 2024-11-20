@@ -4,3 +4,4 @@
   become: true
 - import_playbook: playbooks/packages.yml
 - import_playbook: playbooks/certs&auth.yml
+- import_playbook: playbooks/website.yml
