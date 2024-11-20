@@ -11,8 +11,8 @@
           - apache2-utils
           - php
           - libapache2-mod-php
-          # - certbot
-          # - python3-certbot-apache
+          - certbot
+          - python3-certbot-apache
           - software-properties-common
           - prometheus
           - prometheus-apache-exporter
