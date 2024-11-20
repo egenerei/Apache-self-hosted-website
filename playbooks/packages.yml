@@ -8,6 +8,7 @@
         name:
           - curl
           - apache2
+          - apache2-utils
           - php
           - libapache2-mod-php
           # - certbot

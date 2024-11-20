@@ -12,6 +12,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell", inline: <<-SCRIPT
     timedatectl set-timezone Europe/Madrid
+    ip route replace default via 192.168.1.1 dev eth1 i
   SCRIPT
 
   config.vm.define "web_non_production" do |web1|
@@ -19,17 +20,4 @@ Vagrant.configure("2") do |config|
   end
 
 end
-# , ip: "192.168.1.40", bridge: "enp6s0"
-# ip route replace default via 192.168.1.1 dev eth1 i
-# apt update
-    # apt install prometheus -y
-    # apt install prometheus-apache-exporter -y
-    # cp /vagrant/prometheus.yml /etc/prometheus/
-    # apt-get install -y apt-transport-https software-properties-common wget
-    # mkdir -p /etc/apt/keyrings/
-    # wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/grafana.gpg > /dev/null
-    # echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
-    # apt-get update
-    # apt-get install grafana -y
-    # systemctl start grafana-server
-    # systemctl enable grafana-server
+
