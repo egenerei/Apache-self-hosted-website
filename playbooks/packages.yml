@@ -1,0 +1,59 @@
+---
+- name: Packages
+  hosts: all
+  become: true
+  tasks:
+    - name: Install available packages from debian official repositories for apache2 hosting and monitoring
+      apt:
+        name:
+          - curl
+          - apache2
+          - php
+          - libapache2-mod-php
+          # - certbot
+          # - python3-certbot-apache
+          - software-properties-common
+          - prometheus
+          - prometheus-apache-exporter
+        state: present
+        update_cache: yes
+      notify:
+        - Start and enable apache2
+
+    - name: Add Grafana GPG key
+      apt_key:
+        url: https://packages.grafana.com/gpg.key
+        state: present
+
+    - name: Add Grafana APT repository
+      apt_repository:
+        repo: "deb https://packages.grafana.com/oss/deb stable main"
+        state: present
+    
+    - name: Install Grafana
+      apt:
+        name: grafana
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+      notify: 
+        - Start and enable grafana-server
+  
+  handlers:
+    - name: Start and enable apache2
+      ansible.builtin.service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Start and enable prometheus
+      ansible.builtin.service:
+        name: prometheus
+        state: started
+        enabled: yes
+
+    - name: Start and enable grafana-server
+      ansible.builtin.service:
+        name: grafana-server
+        state: started
+        enabled: yes

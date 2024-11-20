@@ -1,0 +1,10 @@
+*lock.*.odt#
+.vagrant
+*.key
+*.crt
+.vscode
+z*
+dns*.sh
+pruebas.yml
+*.pem
+config_files
