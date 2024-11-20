@@ -11,33 +11,48 @@
         state: directory
         mode: '0755'
 
-    - name: Check if cert/key/chain files already exist
+    - name: Check if cert file already exist
       stat:
-        path: "{{ certs }}/fullchain.pem"
-      register: fullchain_stat
+        path: "{{ certs }}/cert.pem"
+      register: cert_stat
 
-    - name: Check if cert/key/chain files already exist
+    - name: Check if privkey file already exist
       stat:
         path: "{{ certs }}/privkey.pem"
       register: privkey_stat
 
-    - name: Check if cert/key/chain files already exist
+    - name: Check if chain file already exist
       stat:
         path: "{{ certs }}/chain.pem"
       register: chain_stat
 
-    - name: Copy cert/key/chain files to server
-      copy:
-        src: ../certs/
-        dest: "{{ certs }}/"
+    - name: Copy cert.pem to server
+      ansible.builtin.copy:
+        src: ../certs/cert.pem
+        dest: "{{ certs }}/cert.pem"
         owner: www-data
         group: www-data
-        mode: '0755'
-        recurse: yes
-      when: 
-        - not fullchain_stat.stat.exists
-        - not privkey_stat.stat.exists
-        - not chain_stat.stat.exists
+        mode: '0644'
+      when: not cert_stat.stat.exists
+
+    - name: Copy privkey.pem to server
+      ansible.builtin.copy:
+        src: ../certs/privkey.pem
+        dest: "{{ certs }}/privkey.pem"
+        owner: www-data
+        group: www-data
+        mode: '0600'
+      when: not privkey_stat.stat.exists
+
+    - name: Copy chain.pem to server
+      ansible.builtin.copy:
+        src: ../certs/chain.pem
+        dest: "{{ certs }}/chain.pem"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+      when: not chain_stat.stat.exists
+
 
     - name: Stablish permissions for private key
       file:
@@ -72,13 +87,25 @@
         state: directory
         mode: '0755'
 
+    - name: Check if admin .htpasswd file already exist
+      stat:
+        path: "{{ admin_passwd }}"
+      register: admin_stat
+
+    - name: Check if sysadmin .htpasswd file already exist
+      stat:
+        path: "{{ sysadmin_passwd }}"
+      register: sysadmin_stat
+
     - name: Create admin .htpasswd file
       ansible.builtin.command:
         cmd: htpasswd -cb /etc/apache2/admin/.htpasswd admin asir
+      when: not admin_stat.stat.exists
 
     - name: Create sysadmin .htpasswd file
       ansible.builtin.command:
         cmd: htpasswd -cb /etc/apache2/sysadmin/.htpasswd sysadmin risa
+      when: not sysadmin_stat.stat.exists
 
   handlers:
     - name: Restart apache2

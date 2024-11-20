@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
   SCRIPT
 
   config.vm.define "web_non_production" do |web1|
-    web1.vm.network "public_network", ip: "192.168.1.40", bridge: "wlp62s0"
+    web1.vm.network "public_network", ip: "192.168.1.40", bridge: "enp6s0"
   end
 
 end
