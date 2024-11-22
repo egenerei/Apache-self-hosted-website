@@ -11,8 +11,21 @@
         mode: '0644'
       notify: Restart prometheus
 
+    - name: Copy grafana datasources to server
+      ansible.builtin.copy:
+        src: ../monitoring_conf/grafana_conf/datasources
+        dest: "{{ grafana_datasource }}"
+        mode: '0644'
+      notify: Restart grafana-server
+
   handlers:
     - name: Restart prometheus
       ansible.builtin.service:
         name: apache2
         state: restarted
+
+    - name: Restart grafana-server
+      ansible.builtin.service:
+        name: grafana-server
+        state: restarted
+        enabled: yes
