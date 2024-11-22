@@ -8,3 +8,4 @@ user: vagrant
 scripts: /home/{{user}}/scripts
 domain: egenerei.es
 certs: /etc/letsencrypt/live/{{ domain }}
+prometheus_conf: /etc/prometheus
