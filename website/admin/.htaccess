@@ -1,0 +1,6 @@
+AuthType Basic
+AuthName "Restricted Area"
+AuthUserFile /etc/apache2/admin/.htpasswd
+Require valid-user
+DirectoryIndex admin.html
+Options +FollowSymLinks -Indexes
