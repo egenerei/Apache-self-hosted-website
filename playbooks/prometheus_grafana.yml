@@ -18,6 +18,13 @@
         mode: '0644'
       notify: Restart grafana-server
 
+    - name: Copy grafana.ini
+      ansible.builtin.copy:
+        src: ../monitoring_conf/grafana_conf/grafana.ini
+        dest: "/etc/grafana/"
+        mode: '0644'
+      notify: Restart grafana-server
+
     - name: Copy all systemd arguments for prometheus & its services(for listening locally)
       ansible.builtin.copy:
         src: ../monitoring_conf/prometheus_conf/systemd_args/

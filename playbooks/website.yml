@@ -5,6 +5,7 @@
   vars_files: vars.yml
   tasks:
     
+    #Disable Apache2 default configuration sites
     - name: Check if 000-default.conf site is enabled
       stat:
         path: "{{ website_enabled_conf }}/000-default.conf"
@@ -14,24 +15,6 @@
       stat:
         path: "{{ website_enabled_conf }}/default-ssl.conf"
       register: ssl_stat
-
-    - name: Check if MY WEBSITE FILE {{ website_file }} site is enabled
-      stat:
-        path: "{{ website_enabled_conf }}/{{ website_file }}"
-      register: my_website_stat
-
-    - name: Send local file to compare
-      ansible.builtin.copy:
-        src: "../website_conf/root.conf"
-        dest: /tmp/root.conf
-      register: fetched_file
-
-    - name: Compare local file with remote file using diff
-      ansible.builtin.command:
-        cmd: diff /etc/apache2/sites-available/root.conf /tmp/root.conf
-      register: diff_result
-      failed_when: diff_result.rc not in [0, 1]
-      changed_when: diff_result.rc == 1
 
     - name: Disable the 000-default.conf site configuration
       command:
@@ -45,23 +28,44 @@
       when: ssl_stat.stat.exists
       notify: Restart apache2
 
+    #Check if the website file is already working on the server
+
+    - name: Check if MY WEBSITE FILE {{ website_file }} site is enabled
+      stat:
+        path: "{{ website_enabled_conf }}/{{ website_file }}"
+      register: my_website_stat
+
+    - name: Send local file to compare
+      ansible.builtin.copy:
+        src: "../website_conf/root.conf"
+        dest: /tmp/root.conf
+      register: fetched_file
+      
+    - name: Compare local file with remote file using diff
+      ansible.builtin.command:
+        cmd: diff /etc/apache2/sites-available/root.conf /tmp/root.conf
+      register: diff_result
+      when: my_website_stat.stat.exists
+      failed_when: diff_result.rc not in [0, 1]
+      changed_when: diff_result.rc == 1
+
     - name: Disable the MY WEBSITE FILE {{ website_file }} site configuration
       command:
-        cmd: a2dissite {{ website_file }} 
-      when: diff_result.rc == 1
+        cmd: "a2dissite {{ website_file }}" 
+      when: (diff_result.rc | default(-1)) == 1
       notify: Restart apache2
 
     - name: Copy my new configuration file {{ website_file }} to the server
       template: 
         src: ../website_conf/root.conf
         dest: "{{ website_available_conf }}/"
-      when: diff_result.rc == 1
+      when: (diff_result.rc | default(1)) == 1
       notify: Restart apache2
 
     - name: Enable my new configuration file {{ website_file }}
       command:
-        cmd: a2ensite {{ website_file }}
-      when: diff_result.rc == 1
+        cmd: "a2ensite {{ website_file }}"
+      when: (diff_result.rc | default(1)) == 1
       notify:
         - Restart apache2
 
