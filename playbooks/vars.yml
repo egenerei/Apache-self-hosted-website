@@ -9,4 +9,4 @@ scripts: /home/{{user}}/scripts
 domain: egenerei.es
 certs_directory: /https_certificates
 prometheus_conf: /etc/prometheus
-grafana_datasource: /etc/grafana/provisioning
+grafana_datasources: /etc/grafana/provisioning/datasources
