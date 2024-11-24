@@ -7,29 +7,24 @@
 
     - name: Create directory for cert/key
       file: 
-        path: "{{ certs }}"
+        path: "{{ certs_directory }}"
         state: directory
         mode: '0755'
 
     - name: Check if cert file already exist
       stat:
-        path: "{{ certs }}/cert.pem"
+        path: "{{ certs_directory }}/egenerei.es_ssl_certificate.cer"
       register: cert_stat
 
     - name: Check if privkey file already exist
       stat:
-        path: "{{ certs }}/privkey.pem"
+        path: "{{ certs_directory }}/_.egenerei.es_private_key.key"
       register: privkey_stat
-
-    - name: Check if chain file already exist
-      stat:
-        path: "{{ certs }}/chain.pem"
-      register: chain_stat
 
     - name: Copy cert.pem to server
       ansible.builtin.copy:
-        src: ../certs/cert.pem
-        dest: "{{ certs }}/cert.pem"
+        src: ../certs/egenerei.es_ssl_certificate.cer
+        dest: "{{ certs_directory }}/egenerei.es_ssl_certificate.cer"
         owner: www-data
         group: www-data
         mode: '0644'
@@ -38,41 +33,24 @@
 
     - name: Copy privkey.pem to server
       ansible.builtin.copy:
-        src: ../certs/privkey.pem
-        dest: "{{ certs }}/privkey.pem"
+        src: ../certs/_.egenerei.es_private_key.key
+        dest: "{{ certs_directory }}/_.egenerei.es_private_key.key"
         owner: www-data
         group: www-data
         mode: '0600'
       when: not privkey_stat.stat.exists
       notify: Restart apache2
 
-    - name: Copy chain.pem to server
-      ansible.builtin.copy:
-        src: ../certs/chain.pem
-        dest: "{{ certs }}/chain.pem"
-        owner: www-data
-        group: www-data
-        mode: '0644'
-      when: not chain_stat.stat.exists
-      notify: Restart apache2
-
     - name: Stablish permissions for private key
       file:
-        path: "{{ certs }}/privkey.pem"
+        path: "{{ certs_directory }}/_.egenerei.es_private_key.key"
         owner: www-data
         group: www-data
         mode: '0600'
 
     - name: Stablish permissions for certificate
       file:
-        path: "{{ certs }}/cert.pem"
-        owner: www-data
-        group: www-data
-        mode: '0644'
-
-    - name: Stablish permissions for chain
-      file:
-        path: "{{ certs }}/chain.pem"
+        path: "{{ certs_directory }}/egenerei.es_ssl_certificate.cer"
         owner: www-data
         group: www-data
         mode: '0644'

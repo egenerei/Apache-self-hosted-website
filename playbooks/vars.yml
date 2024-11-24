@@ -7,6 +7,6 @@ website_available_conf: /etc/apache2/sites-available
 user: vagrant
 scripts: /home/{{user}}/scripts
 domain: egenerei.es
-certs: /etc/letsencrypt/live/{{ domain }}
+certs_directory: /https_certificates
 prometheus_conf: /etc/prometheus
 grafana_datasource: /etc/grafana/provisioning

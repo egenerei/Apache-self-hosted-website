@@ -6,4 +6,3 @@
 - import_playbook: playbooks/certs&auth.yml
 - import_playbook: playbooks/website.yml
 - import_playbook: playbooks/prometheus_grafana.yml
-- import_playbook: playbooks/testcerts.yml

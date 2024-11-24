@@ -8,3 +8,6 @@ dns*.sh
 pruebas.yml
 *.pem
 config_files
+grafana.ini
+*.cer
+certs
